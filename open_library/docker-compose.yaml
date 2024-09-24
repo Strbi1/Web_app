@@ -1,0 +1,45 @@
+# POSTGRES_HOST_AUTH_METHOD=trust
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"  # Map host port 3000 to container port 3000
+    expose:
+      - "3000"
+    entrypoint: ["npm", "run", "start"]
+
+  backend:
+    container_name: backend
+    build: ./backend
+    ports:
+      - "5000:5000"  # Map host port 5000 to container port 5000
+    expose:
+      - "5000"
+    #env_file:
+    # - ./.env
+    entrypoint: ["flask", "run", "--host=0.0.0.0"]
+    tty: true
+    user: root
+    depends_on:
+        db:
+            condition: service_healthy
+
+  db:
+    container_name: db
+    image: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+      - ./db/openlibrary.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=openlibrary
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    healthcheck:
+      test: "pg_isready --username=postgres && psql --username=postgres --list"
+      timeout: 3s
+      retries: 1
+
+volumes:
+  postgres_data:
