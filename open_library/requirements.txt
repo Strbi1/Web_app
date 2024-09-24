@@ -1,0 +1,7 @@
+Flask
+Flask-Migrate
+Flask-JWT-Extended
+Flask-Cors
+Flask-SQLAlchemy
+Werkzeug
+psycopg2
